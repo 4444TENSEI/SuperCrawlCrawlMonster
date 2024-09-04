@@ -1,0 +1,30 @@
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>爬!</title>
+</head>
+
+<body>
+  <header>
+    <div aria-busy="true" id="progress" hidden aria-label="请等待" role="progressbar"></div>
+  </header>
+  <main role="main">
+    <p class="content-title">
+      爬爬怪</p>
+
+    <div class="input-group">
+      <input type="text" id="website" placeholder="https://www.xxx.com" value="http://" />
+      <button id="download" class=" btn-text">开爬!</button>
+      <button class="yokaze-btn-download btn-text">点击下载!</button>
+
+      <h4 hidden id="nFilesP">已下载文件总数:
+        <span id="nFiles">10</span>
+        <p class="log" id="log"></p>
+      </h4>
+    </div>
+  </main>
+</body>
+
+</html>

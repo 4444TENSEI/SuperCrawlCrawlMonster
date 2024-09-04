@@ -1,0 +1,94 @@
+<html lang="zh-CN">
+<link rel='stylesheet' href='/stylesheets/style.css'>
+<script src="/socket.io/socket.io.js"></script>
+  <link rel="icon" href="https://testingcf.jsdelivr.net/gh/4444TENSEI/CDN@master/img/avatar/AngelDog/AngelDog-rounded-mini.png" sizes="16x16" />
+</head>
+
+<body>
+  {{{body}}}
+</body>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'UA-120895783-4');
+
+  var numberOfFiles = 0;
+  const downloadWebsite = document.getElementsByClassName('yokaze-btn-download')[0];
+  var socket = io.connect(document.URL);
+  var logMessages = []; // Array to store log messages
+
+  if (!localStorage['token'])
+    localStorage['token'] = generateToken(20);
+
+  function updateLogDisplay(newLogMessage) {
+    logMessages.push(newLogMessage); // Add the new log message to the array
+    if (logMessages.length > 3) {
+      logMessages.shift(); // Remove the oldest message if there are more than 3 messages
+    }
+    const log = document.getElementById('log');
+    log.innerHTML = ''; // Clear the current log
+    logMessages.forEach(function(message) {
+      log.innerHTML += message + '<br>'; // Re-add the last three messages
+    });
+  }
+
+  socket.on(localStorage['token'], (event) => {
+    console.log(event);
+    const log = document.getElementById('log');
+    document.getElementById('progress').hidden = false;
+
+    let logMessage = '';
+    switch (event.progress) {
+      case "Converting":
+        logMessage = `<code style="color:rgb(255,255,255);">打包压缩中...</code>`;
+        break;
+      case "Completed":
+        document.getElementById('progress').hidden = true;
+        logMessage = `<code style="color:rgb(255,255,255);">压缩成功！</code>`;
+        downloadWebsite.style.display = 'block';
+        downloadWebsite.onclick = function () {
+          window.location = '/sites/' + event.file + ".zip";
+        }
+        break;
+      default:
+        if (event.progress.includes('200 OK'))
+          numberOfFiles++;
+        document.getElementById('nFilesP').hidden = false;
+        document.getElementById('nFiles').innerHTML = numberOfFiles;
+        logMessage = `<code>${event.progress}</code><br>`;
+        break;
+    }
+    updateLogDisplay(logMessage); // Update the log display with the new message
+  });
+
+  const downloadBtn = document.getElementById("download");
+  downloadBtn.onclick = () => {
+    var website = document.getElementById('website').value;
+    if (!isValidUrl(website)) {
+      alert('请输入有效的URL。');
+      return;
+    }
+    console.log("正在下载网站... %s", website);
+    socket.emit('request', { token: localStorage['token'], website });
+  };
+
+  function generateToken(n) {
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var token = '';
+    for (var i = 0; i < n; i++) {
+      token += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return token;
+  }
+
+  function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+</script>
